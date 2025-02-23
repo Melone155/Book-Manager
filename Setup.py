@@ -45,8 +45,7 @@ def Setupstart(root):
 
         Setup_Wizard_Button.place(x=400, y=400)
     else:
-        #Login.LoginScreen(root)
-        print("Setup Finish")
+        Login.LoginScreen(root)
 
 def SetupMySQL(root):
     # Clear All Old Objects
@@ -144,4 +143,4 @@ def Finishsetup(root):
     else:
         for widget in root.winfo_children():
             widget.destroy()
-    Login.LoginScreen(root)
+        Login.LoginScreen(root)
