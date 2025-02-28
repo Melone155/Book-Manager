@@ -1,4 +1,5 @@
 import yaml
+import os
 
 def save_mysql_config(host, port, user, password, database):
     config_data = {
@@ -16,6 +17,9 @@ def save_mysql_config(host, port, user, password, database):
 
 def load_mysql_config():
     config_path = "Config/MySQL.yaml"
+
+    if not os.path.exists(config_path):
+        return None
 
     with open(config_path, "r") as yaml_file:
         try:

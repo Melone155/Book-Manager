@@ -1,10 +1,13 @@
 import tkinter as tk
-import yaml
 from PIL import Image, ImageTk
 import customtkinter
 from customtkinter.windows.widgets import ctk_button
+import MySQL
+import Register
+
 
 def LoginScreen(root):
+
     # Clear All Old Objects
     for widget in root.winfo_children():
         widget.destroy()
@@ -63,7 +66,7 @@ def LoginScreen(root):
         bg_color="#ffffff",
         fg_color="#ffffff",
         hover=False,
-        command=lambda: Login(Userentry.get(), passwordentry.get(), root)
+        command=lambda: Register.RegisterScreen(root)
     )
 
     Regist_Button.place(x=387, y=410)

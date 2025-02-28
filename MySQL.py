@@ -1,5 +1,7 @@
+import sys
 import mysql.connector
 import tkinter
+import os
 
 import YML
 
@@ -59,3 +61,44 @@ def CreateTable(conn):
     except mysql.connector.Error as err:
         tkinter.messagebox.showerror(title="Error", message=f"Failed to create tables or insert data: {err}")
         print(f"Error: {err}")
+
+
+def ConnectionMySQL():
+    config = YML.load_mysql_config()
+
+    if config is None:
+        return None
+
+    try:
+        conn = mysql.connector.connect(
+            host=config["host"],
+            port=config["port"],
+            user=config["user"],
+            password=config["password"],
+            database=config["database"]
+        )
+        return conn
+    except mysql.connector.Error as err:#
+        tkinter.messagebox.showerror(title="Error", message=f"Connection failed: {err}")
+        sys.exit()
+
+
+conn = ConnectionMySQL()
+
+
+def RegisterMySQL(conn, email, FirstName, LastName, Passwort):
+    mycursor = conn.cursor()
+
+    mycursor.execute("SELECT COUNT(*) FROM User WHERE Email = %s", (email,))
+    (count,) = mycursor.fetchone()
+
+    if count == 0:  # Falls kein Eintrag existiert, dann einfügen
+        mycursor.execute(
+            "INSERT INTO User (FirstName, LastName, Email, Permission, Passwort) VALUES (%s, %s, %s, %s, %s)",
+            (FirstName, LastName, email, 'User', Passwort)
+        )
+        conn.commit()
+        tkinter.messagebox.showinfo(title="Create", message="Here account was successfully created")
+    else:
+        tkinter.messagebox.showerror(title="Error", message="Here account could not be created because the email was already in use")
+
