@@ -28,9 +28,3 @@ def load_mysql_config():
         except yaml.YAMLError as e:
             print(f"Loading error: {e}")
             return None
-
-        #config = load_mysql_config()
-        #if config:
-        #    host = config["host"]
-        #    port = config["port"]
-        #    print(f"🔗 Verbindung zu {host}:{port} wird hergestellt...")

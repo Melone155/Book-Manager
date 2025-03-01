@@ -86,19 +86,42 @@ def ConnectionMySQL():
 conn = ConnectionMySQL()
 
 
+import tkinter
+
 def RegisterMySQL(conn, email, FirstName, LastName, Passwort):
+    # Prüfen, ob die Verbindung existiert
+    if conn is None:
+        tkinter.messagebox.showerror(title="Error", message="Datenbankverbindung nicht vorhanden.")
+        return
+
     mycursor = conn.cursor()
 
     mycursor.execute("SELECT COUNT(*) FROM User WHERE Email = %s", (email,))
     (count,) = mycursor.fetchone()
 
-    if count == 0:  # Falls kein Eintrag existiert, dann einfügen
+    if count == 0:
         mycursor.execute(
             "INSERT INTO User (FirstName, LastName, Email, Permission, Passwort) VALUES (%s, %s, %s, %s, %s)",
             (FirstName, LastName, email, 'User', Passwort)
         )
         conn.commit()
-        tkinter.messagebox.showinfo(title="Create", message="Here account was successfully created")
+        tkinter.messagebox.showinfo(title="Create", message="Your account has been successfully created")
     else:
-        tkinter.messagebox.showerror(title="Error", message="Here account could not be created because the email was already in use")
+        tkinter.messagebox.showerror(title="Error", message="The e-mail address is already in use.")
+
+
+def Login(connn, email, password, root):
+    if not conn:
+        tkinter.messagebox.showerror(title="Connection Error", message="No connection to the database could be established.")
+        return
+
+    mycursor = conn.cursor()
+    mycursor.execute("SELECT * FROM User WHERE Email = %s AND Passwort = %s", (email, password))
+    user = mycursor.fetchone()
+
+    if user:
+        tkinter.messagebox.showinfo(title="Login Successful", message="You have successfully logged in.")
+    else:
+        tkinter.messagebox.showerror(title="Login Failed", message="Invalid email or password.")
+
 

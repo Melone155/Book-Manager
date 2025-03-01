@@ -21,11 +21,11 @@ def LoginScreen(root):
     label.image = tk_image
     label.pack(pady=20)
 
-    Userlabe = tk.Label(root, bg="white", text="Username", font=("Helvetica", 16))
-    Userlabe.place(x=336, y=284)
+    Emaillabe = tk.Label(root, bg="white", text="Email", font=("Helvetica", 16))
+    Emaillabe.place(x=336, y=284)
 
-    Userentry = tk.Entry(root)
-    Userentry.place(x=440, y=290)
+    Emailentry = tk.Entry(root)
+    Emailentry.place(x=440, y=290)
 
     passwordlabe = tk.Label(root, bg="white", text="Password", font=("Helvetica", 16))
     passwordlabe.place(x=336, y=319)
@@ -48,7 +48,7 @@ def LoginScreen(root):
         bg_color="#ffffff",
         fg_color="#ffffff",
         hover=False,
-        command=lambda: Login(Userentry.get(), passwordentry.get(), root)
+        command=lambda: MySQL.Login(MySQL.conn, Emailentry.get(), passwordentry.get(), root)
     )
 
     Login_Button.place(x=387, y=360)
