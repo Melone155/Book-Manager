@@ -49,6 +49,7 @@ def LoginScreen(root):
         fg_color="#ffffff",
         hover=False,
         command=lambda: MySQL.Login(MySQL.conn, Emailentry.get(), passwordentry.get(), root)
+                                    #conn, email, password, root
     )
 
     Login_Button.place(x=387, y=360)
