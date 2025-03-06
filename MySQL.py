@@ -127,11 +127,8 @@ def Login(conn, email, password, root):
     if user:
         permissions = user['Permission']
 
-        books = BookDetails.get_books_from_db(conn)
-        BookDetails.display_books(root, books, conn)
+        BookDetails.display_books(root, conn)
     else:
         tkinter.messagebox.showerror(title="Login Failed", message="Invalid email or password.")
-
-    conn.close()
 
 
