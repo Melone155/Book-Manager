@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import Frame, Label, Button, Entry
 
+import BookDetails
+import MySQL
+
 
 def search_users(root, conn, query):
     cursor = conn.cursor(dictionary=True)
@@ -13,6 +16,7 @@ def search_users(root, conn, query):
 
 
 def display_users(root, conn):
+
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -21,8 +25,12 @@ def display_users(root, conn):
     users = cursor.fetchall()
     cursor.close()
 
-    canvas = tk.Canvas(root, width=900, height=50, bg="#FFFFFF")
+    canvas = tk.Canvas(root, width=900, height=50, bg="white")
     canvas.grid(row=0, column=0, columnspan=2, sticky='ew')
+
+    back = tk.Label(root, text="Back", font=("Helvetica", 16), bg="white", height=1)
+    back.place(x=20, y=10)
+    back.bind("<Button-1>", lambda event: BookDetails.display_books(root, conn))
 
     search_entry = Entry(root, font=("Helvetica", 14))
     search_entry.grid(row=1, column=0, padx=7, pady=10)
@@ -34,11 +42,11 @@ def display_users(root, conn):
     container = Frame(root, bg="white")
     container.grid(row=2, column=0, columnspan=2, padx=3, pady=3, sticky='nsew')
 
-    main_frame = Frame(container)
+    main_frame = Frame(container, bg="white")
     main_frame.pack(padx=0, pady=0, expand=True, fill='both')
 
     if not users:
-        no_data_label = Label(main_frame, text="No users found.", font=("Helvetica", 16))
+        no_data_label = Label(main_frame, text="No users found.", font=("Helvetica", 16), bg="white")
         no_data_label.pack(padx=0, pady=0)
     else:
         row = 0
@@ -46,11 +54,10 @@ def display_users(root, conn):
             frame = Frame(main_frame, borderwidth=1, relief="solid", pady=5, padx=5, bg="white")
             frame.grid(row=row, column=0, padx=0, pady=0, sticky='ew')
 
-            name_label = Label(frame, text=f"{user['FirstName']} {user['LastName']}", font=("Helvetica", 16))
+            name_label = Label(frame, text=f"{user['FirstName']} {user['LastName']}", font=("Helvetica", 16), bg="white")
             name_label.pack(side="left", padx=5, pady=5)
 
-            details_button = Button(frame, text=">", font=("Helvetica", 16),
-                                    command=lambda u=user: show_user_details(root, u))
+            details_button = Button(frame, text=">", font=("Helvetica", 16), command=lambda: display_user_overview(root, conn, user['UserID']))
             details_button.pack(side="right", padx=5, pady=5)
 
             row += 1
@@ -60,5 +67,53 @@ def display_users(root, conn):
     main_frame.grid_columnconfigure(0, weight=1)
 
 
-def show_user_details(root, user):
-    print(f"Show details for {user['FirstName']} {user['LastName']}")
+def display_user_overview(root, conn, user_id):
+
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT User.UserID, User.FirstName, User.LastName, User.Email, COALESCE(GROUP_CONCAT(Books.Title SEPARATOR ', '), 'No books borrowed') AS BorrowedBooks FROM User LEFT JOIN borrow ON User.UserID = borrow.UserID LEFT JOIN Books ON borrow.ISBN = Books.ISBN WHERE User.UserID = %s GROUP BY User.UserID", (user_id,))
+
+    user = cursor.fetchone()
+    cursor.close()
+
+    header_frame = Frame(root, bg="white")
+    header_frame.grid(row=0, column=0, columnspan=3, sticky="ew")
+
+    Delete = tk.Label(root, text="Delet User", font=("Helvetica", 16), bg="white", fg="#b30000")
+    Delete.grid(row=0, column=1, sticky='e', padx=20)
+    Delete.bind("<Button-1>", lambda event: MySQL.delete_user(root, conn, user['UserID']))
+
+    back = tk.Label(header_frame, text="Back", font=("Helvetica", 16), bg="white", cursor="hand2")
+    back.grid(row=0, column=0, sticky='w', padx=10, pady=10)
+    back.bind("<Button-1>", lambda event: BookDetails.display_books(root, conn))
+
+    title_label = Label(header_frame, text="User Overview", font=("Helvetica", 18, "bold"), bg="white")
+    title_label.grid(row=0, column=1, columnspan=1, pady=10, sticky="n")
+    header_frame.grid_columnconfigure(1, weight=2)
+
+    container = Frame(root, bg="white")
+    container.grid(row=1, column=0, columnspan=3, padx=3, pady=3, sticky='nsew')
+
+    main_frame = Frame(container, bg="white")
+    main_frame.pack(padx=0, pady=0, expand=True, fill='both')
+
+    if not user:
+        no_data_label = Label(container, text="User not found.", font=("Helvetica", 16), bg="white")
+        no_data_label.pack(pady=10)
+    else:
+
+        info_text = f"""
+            Last Name: {user['LastName']}
+            First Name: {user['FirstName']}
+            Email: {user['Email']}
+            User ID: {user['UserID']}
+            """
+        info_label = Label(container, text=info_text, font=("Helvetica", 14), bg="white", justify="left")
+        info_label.pack(pady=10, anchor="w")
+
+        borrowed_books = user.get('BorrowedBooks', "No books borrowed")
+        books_label = Label(container, text=f"Borrowed Books: {borrowed_books}", font=("Helvetica", 12), fg="gray",
+                            bg="white", justify="left")
+        books_label.pack(pady=5, anchor="w")

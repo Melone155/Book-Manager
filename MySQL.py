@@ -1,11 +1,12 @@
 import sys
+from tkinter import messagebox
 import mysql.connector
 
+import User
 import YML
 import BookDetails
 
 def test_mysql_connection(host, port, user, password, database):
-    """Testet die MySQL-Verbindung und zeigt eine Meldung an"""
     try:
         conn = mysql.connector.connect(
             host=host,
@@ -130,5 +131,28 @@ def Login(conn, email, password, root):
         BookDetails.display_books(root, conn)
     else:
         tkinter.messagebox.showerror(title="Login Failed", message="Invalid email or password.")
+
+
+def delete_user(root, conn, user_id):
+
+    confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete this user?")
+    if not confirm:
+        return
+
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("DELETE FROM User WHERE UserID = %s", (user_id,))
+        conn.commit()
+
+        messagebox.showinfo("Success", "User deleted successfully!")
+        User.display_users(root, conn)
+
+        cursor.close()
+
+    except Exception as e:
+        conn.rollback()
+        messagebox.showerror("Error", f"Failed to delete user: {e}")
+        cursor.close()
 
 

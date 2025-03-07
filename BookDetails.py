@@ -6,19 +6,9 @@ import User
 
 
 def search_books(root, conn, query):
-    """Sucht Bücher nach Titel, Autor oder ISBN und zeigt die Ergebnisse an."""
     cursor = conn.cursor(dictionary=True)
 
-    # Erweiterte SQL-Abfrage für die Suche
-    cursor.execute("""
-        SELECT Books.ISBN, Books.Title, Authors.FirstName, Authors.LastName 
-        FROM Books 
-        JOIN Authors ON Books.AuthorID = Authors.AuthorID 
-        WHERE Books.Title LIKE %s 
-        OR Authors.FirstName LIKE %s 
-        OR Authors.LastName LIKE %s  
-        OR Books.ISBN LIKE %s
-    """, ('%' + query + '%',) * 4)
+    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.FirstName, Authors.LastName FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID WHERE Books.Title LIKE %s OR Authors.FirstName LIKE %s OR Authors.LastName LIKE %s OR Books.ISBN LIKE %s", ('%' + query + '%',) * 4)
 
     books = cursor.fetchall()
     cursor.close()
@@ -26,23 +16,15 @@ def search_books(root, conn, query):
 
 
 def display_books(root, conn):
-    """Zeigt eine Liste von Büchern in einer Art DataGrid mit weißen Hintergründen an."""
 
-    # Vorherige Inhalte löschen, um die Ansicht zu aktualisieren
     for widget in root.winfo_children():
         widget.destroy()
 
-    # Bücher aus der Datenbank abrufen
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("""
-        SELECT Books.ISBN, Books.Title, Authors.FirstName, Authors.LastName 
-        FROM Books 
-        JOIN Authors ON Books.AuthorID = Authors.AuthorID
-    """)
+    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.FirstName, Authors.LastName FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID")
     books = cursor.fetchall()
     cursor.close()
 
-    # Oberes Menü
     canvas = tk.Canvas(root, width=900, height=50, bg="#FFFFFF")
     canvas.grid(row=0, column=0, columnspan=2, sticky='ew')
 
@@ -57,7 +39,6 @@ def display_books(root, conn):
     else:
         canvas.create_text(450, 25, text="Book-Manager", font=("Helvetica", 16))
 
-    # Suchleiste
     search_entry = Entry(root, font=("Helvetica", 14))
     search_entry.grid(row=1, column=0, padx=7, pady=10)
 
@@ -65,11 +46,11 @@ def display_books(root, conn):
                            command=lambda: search_books(root, conn, search_entry.get()))
     search_button.grid(row=1, column=1)
 
-    # Container für die Bücherliste (mit weißem Hintergrund)
-    container = Frame(root, bg="white")  # Hintergrund auf weiß setzen
+
+    container = Frame(root, bg="white")
     container.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="nsew")
 
-    main_frame = Frame(container, bg="white")  # Hintergrund auf weiß setzen
+    main_frame = Frame(container, bg="white")
     main_frame.pack(padx=5, pady=5, expand=True, fill='both')
 
     if not books:
