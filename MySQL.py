@@ -44,7 +44,7 @@ def CreateTable(conn):
         resultAuthor = mycursor.fetchone()
 
         if not resultAuthor:
-            mycursor.execute("CREATE TABLE IF NOT EXISTS Authors (AuthorID INT AUTO_INCREMENT PRIMARY KEY, FirstName VARCHAR(50) NOT NULL, LastName VARCHAR(50) NOT NULL);")
+            mycursor.execute("CREATE TABLE IF NOT EXISTS Authors (AuthorID INT AUTO_INCREMENT PRIMARY KEY, Name VARCHAR(50) NOT NULL);")
         if not resultBook:
             mycursor.execute("CREATE TABLE IF NOT EXISTS Books (ISBN VARCHAR(255) PRIMARY KEY, Title VARCHAR(50) NOT NULL, PublicationYear YEAR NOT NULL, AuthorID INT, FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID) ON DELETE SET NULL);")
         if not resultUser:

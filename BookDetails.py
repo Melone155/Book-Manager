@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import Frame, Label, Entry, Button
 
+import AddBook
 import MySQL
 import User
 
@@ -8,7 +9,7 @@ import User
 def search_books(root, conn, query):
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.FirstName, Authors.LastName FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID WHERE Books.Title LIKE %s OR Authors.FirstName LIKE %s OR Authors.LastName LIKE %s OR Books.ISBN LIKE %s", ('%' + query + '%',) * 4)
+    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.Name FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID WHERE Books.Title LIKE %s OR Authors.Name LIKE %s OR Books.ISBN LIKE %s", ('%' + query + '%',) * 4)
 
     books = cursor.fetchall()
     cursor.close()
@@ -21,7 +22,7 @@ def display_books(root, conn):
         widget.destroy()
 
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.FirstName, Authors.LastName FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID")
+    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.Name FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID")
     books = cursor.fetchall()
     cursor.close()
 
@@ -31,7 +32,7 @@ def display_books(root, conn):
     if MySQL.permissions == "Admin":
         add = tk.Label(root, text="Add Book", font=("Helvetica", 16), bg="white")
         add.grid(row=0, column=1, sticky='e', padx=20)
-        add.bind("<Button-1>")  # Hier kannst du später die Funktion zum Hinzufügen implementieren
+        add.bind("<Button-1>", lambda event: AddBook.add_book(root, conn))
 
         user = tk.Label(root, text="User", font=("Helvetica", 16), bg="white")
         user.grid(row=0, column=0, sticky='w', padx=20)
