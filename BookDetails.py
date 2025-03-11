@@ -60,30 +60,17 @@ def display_books(root, conn):
     else:
         row = 0
         for book in books:
-            frame = Frame(main_frame, borderwidth=1, relief="solid", padx=10, pady=5, bg="white")
-            frame.grid(row=row, column=0, padx=5, pady=5, sticky="ew")
+            frame = Frame(main_frame, borderwidth=1, relief="solid", pady=5, padx=5, bg="white")
+            frame.grid(row=row, column=0, padx=0, pady=0, sticky='ew')
 
-            # Buchtitel
-            title_label = Label(frame, text=book['Title'], font=("Helvetica", 14), bg="white")
-            title_label.pack(side="top", anchor="w")
+            title_label = Label(frame, text=book['Title'], font=("Helvetica", 16), bg="white")
+            title_label.pack(side="left", padx=5, pady=5)
 
-            # Autor & ISBN
-            author_label = Label(frame, text=f"by {book['FirstName']} {book['LastName']} | ISBN: {book['ISBN']}",
-                                 font=("Helvetica", 12), fg="gray", bg="white")
-            author_label.pack(side="top", anchor="w")
-
-            # Button für Details
-            view_button = Button(frame, text=">", font=("Helvetica", 14),
-                                 command=lambda isbn=book['ISBN']: show_book_details(root, isbn))
-            view_button.pack(side="right", padx=5, pady=5)
+            details_button = Button(frame, text=">", font=("Helvetica", 16),command=lambda: print("Book"))
+            details_button.pack(side="right", padx=5, pady=5)
 
             row += 1
 
     root.grid_columnconfigure(0, weight=1)
     root.grid_rowconfigure(2, weight=1)
     main_frame.grid_columnconfigure(0, weight=1)
-
-
-def show_book_details(root, isbn):
-    """Öffnet eine Detailansicht für das gewählte Buch."""
-    print(f"Details für Buch mit ISBN {isbn} anzeigen")

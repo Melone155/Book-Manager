@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 
 import customtkinter
 from customtkinter.windows.widgets import ctk_button
@@ -14,9 +15,6 @@ def add_book(root, conn):
     # Verbindung global speichern
     global isbnentry, titleentry, yearentry, authorchoice, author_dropdown, author_entry_name, conn_global
     conn_global = conn
-
-    header = tk.Label(root, text="Add a Book", font=("Helvetica", 18, "bold"), bg="white")
-    header.grid(row=0, column=0, columnspan=2, pady=10)
 
     back = tk.Label(root, text="Back", font=("Helvetica", 14), bg="white")
     back.grid(row=0, column=0, sticky="w", padx=20)
@@ -49,7 +47,7 @@ def add_book(root, conn):
 
     tk.Radiobutton(root, text="New Author", variable=authorchoice, value="new", bg="white", command=update_author_selection).place(x=480, y=220)
 
-    author_dropdown = tk.Combobox(root, width=27, state="normal")
+    author_dropdown = ttk.Combobox(root, width=27, state="normal")
     author_dropdown.place(x=370, y=250)
 
     author_entry_name = tk.Entry(root, width=30, state="disabled")
@@ -57,14 +55,11 @@ def add_book(root, conn):
 
     load_existing_authors()
 
-    save_button = tk.Button(root, text="Save", font=("Helvetica", 14), fg="white", command=save_book)
-    save_button.place(x=370, y=310)
-
     main_font = customtkinter.CTkFont(family="Helvetica", size=12)
 
     Save_Button = ctk_button.CTkButton(
         master=root,
-        text="Login",
+        text="Save",
         font=main_font,
         text_color="black",
         height=40,
@@ -78,7 +73,7 @@ def add_book(root, conn):
         command=lambda: save_book()
     )
 
-    Save_Button.place(x=387, y=360)
+    Save_Button.place(x=400, y=310)
 
 def update_author_selection():
 
@@ -125,7 +120,7 @@ def save_book():
             cursor.close()
             return
 
-        cursor.execute("INSERT INTO Books (ISBN, Title, Year, AuthorID) VALUES (%s, %s, %s, %s)", (isbn, title, year, author_id[0]))
+        cursor.execute("INSERT INTO Books (ISBN, Title, PublicationYear, AuthorID) VALUES (%s, %s, %s, %s)", (isbn, title, year, author_id[0]))
         conn_global.commit()
 
         tk.messagebox.showinfo(title="Book Add", message="Book added successfully!")
