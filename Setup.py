@@ -1,3 +1,4 @@
+import sys
 import tkinter as tk
 from PIL import Image, ImageTk
 import customtkinter
@@ -64,7 +65,7 @@ def SetupMySQL(root):
     main_font = ctk.CTkFont(family="Helvetica", size=12)
 
     #Host
-    hostlabe = tk.Label(root, bg="white", text="MySQL Host:", font=("Helvetica", 16))
+    hostlabe = tk.Label(root, bg="white", text="MySQL Host:", font=("Helvetica", 16), fg="black")
     hostlabe.place(x=120, y=300)
 
     hostentry = tk.Entry(root)
@@ -72,7 +73,7 @@ def SetupMySQL(root):
     hostentry.insert(0, "localhost")
 
     #Port
-    portlabe = tk.Label(root, bg="white", text="Port:", font=("Helvetica", 16))
+    portlabe = tk.Label(root, bg="white", text="Port:", font=("Helvetica", 16), fg="black")
     portlabe.place(x=200, y=340)
 
     portentry = tk.Entry(root)
@@ -80,7 +81,7 @@ def SetupMySQL(root):
     portentry.insert(0, "3306")
 
     #User
-    userlabe = tk.Label(root, bg="white", text="User:", font=("Helvetica", 16))
+    userlabe = tk.Label(root, bg="white", text="User:", font=("Helvetica", 16), fg="black")
     userlabe.place(x=195, y=380)
 
     userentry = tk.Entry(root)
@@ -88,7 +89,7 @@ def SetupMySQL(root):
     userentry.insert(0, "root")
 
     #Database
-    databaselabe = tk.Label(root, bg="white", text="Database:", font=("Helvetica", 16))
+    databaselabe = tk.Label(root, bg="white", text="Database:", font=("Helvetica", 16), fg="black")
     databaselabe.place(x=150, y=420)
 
     databaseentry = tk.Entry(root)
@@ -96,7 +97,7 @@ def SetupMySQL(root):
     databaseentry.insert(0, "bookmanager")
 
     #Passwort
-    passwordlabe = tk.Label(root, bg="white", text="Password:", font=("Helvetica", 16))
+    passwordlabe = tk.Label(root, bg="white", text="Password:", font=("Helvetica", 16), fg="black")
     passwordlabe.place(x=150, y=460)
 
     passwordentry = tk.Entry(root, show="*")
@@ -136,10 +137,12 @@ def SetupMySQL(root):
     next_button.place(x=750, y=540)
 
 def Finishsetup(root):
-    MySQL = 'Config/MySQL.yaml'
-    if not os.path.exists(MySQL):
+    MySQLstr = 'Config/MySQL.yaml'
+    if not os.path.exists(MySQLstr):
         tk.messagebox.showerror(title="Error", message="Please test the connection")
     else:
         for widget in root.winfo_children():
             widget.destroy()
+        python = sys.executable
+        os.execl(python, python, *sys.argv)
         Login.LoginScreen(root)

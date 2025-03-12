@@ -21,13 +21,13 @@ def LoginScreen(root):
     label.image = tk_image
     label.pack(pady=20)
 
-    Emaillabe = tk.Label(root, bg="white", text="Email", font=("Helvetica", 16))
+    Emaillabe = tk.Label(root, bg="white", text="Email", font=("Helvetica", 16), fg="black")
     Emaillabe.place(x=336, y=284)
 
     Emailentry = tk.Entry(root)
     Emailentry.place(x=440, y=290)
 
-    passwordlabe = tk.Label(root, bg="white", text="Password", font=("Helvetica", 16))
+    passwordlabe = tk.Label(root, bg="white", text="Password", font=("Helvetica", 16), fg="black")
     passwordlabe.place(x=336, y=319)
 
     passwordentry = tk.Entry(root, show="*")
@@ -71,16 +71,3 @@ def LoginScreen(root):
     )
 
     Regist_Button.place(x=387, y=410)
-
-def Login(User, Password, root):
-    if UserRequest(User, Password):
-        return
-    else:
-        tk.messagebox.showerror(title="Error", message="Please check your login data")
-
-def UserRequest(username, password):
-
-    return False
-
-def get_permission(user):
-    return ""

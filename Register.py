@@ -25,25 +25,25 @@ def RegisterScreen(root):
     main_font = ctk.CTkFont(family="Helvetica", size=12)
 
     #FirstName
-    Fistnamelabe = tk.Label(root, bg="white", text="First Name:", font=("Helvetica", 16))
+    Fistnamelabe = tk.Label(root, bg="white", text="First Name:", font=("Helvetica", 16), fg="black")
     Fistnamelabe.place(x=120, y=300)
     Firnameentry = tk.Entry(root)
     Firnameentry.place(x=260, y=305)
 
     #LastName
-    Lastnamelabe = tk.Label(root, bg="white", text="Last Name:", font=("Helvetica", 16))
+    Lastnamelabe = tk.Label(root, bg="white", text="Last Name:", font=("Helvetica", 16), fg="black")
     Lastnamelabe.place(x=120, y=340)
     Lastnameentry = tk.Entry(root)
     Lastnameentry.place(x=260, y=345)
 
     #Email
-    Emaillabe = tk.Label(root, bg="white", text="Email:", font=("Helvetica", 16))
+    Emaillabe = tk.Label(root, bg="white", text="Email:", font=("Helvetica", 16), fg="black")
     Emaillabe.place(x=120, y=380)
     Emailentry = tk.Entry(root)
     Emailentry.place(x=260, y=385)
 
     #Passwort
-    passwordlabe = tk.Label(root, bg="white", text="Password:", font=("Helvetica", 16))
+    passwordlabe = tk.Label(root, bg="white", text="Password:", font=("Helvetica", 16), fg="black")
     passwordlabe.place(x=120, y=420)
     passwordentry = tk.Entry(root, show="*")
     passwordentry.place(x=260, y=425)

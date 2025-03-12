@@ -16,21 +16,21 @@ def add_book(root, conn):
     global isbnentry, titleentry, yearentry, authorchoice, author_dropdown, author_entry_name, conn_global
     conn_global = conn
 
-    back = tk.Label(root, text="Back", font=("Helvetica", 14), bg="white")
+    back = tk.Label(root, text="Back", font=("Helvetica", 14), bg="white", fg="black")
     back.grid(row=0, column=0, sticky="w", padx=20)
     back.bind("<Button-1>", lambda event: BookDetails.display_books(root, conn))
 
-    isnlabel = tk.Label(root, text="ISBN:", font=("Helvetica", 16), bg="white")
+    isnlabel = tk.Label(root, text="ISBN:", font=("Helvetica", 16), bg="white", fg="black")
     isnlabel.place(x=336, y=100)
     isbnentry = tk.Entry(root)
     isbnentry.place(x=410, y=107)
 
-    titlelabel = tk.Label(root, text="Title:", font=("Helvetica", 16), bg="white")
+    titlelabel = tk.Label(root, text="Title:", font=("Helvetica", 16), bg="white", fg="black")
     titlelabel.place(x=336, y=135)
     titleentry = tk.Entry(root)
     titleentry.place(x=410, y=142)
 
-    yearlabel = tk.Label(root, text="Year of publication:", font=("Helvetica", 16), bg="white")
+    yearlabel = tk.Label(root, text="Year of publication:", font=("Helvetica", 16), bg="white", fg="black")
     yearlabel.place(x=210, y=170)
     yearentry = tk.Entry(root)
     yearentry.place(x=410, y=177)
@@ -43,9 +43,9 @@ def add_book(root, conn):
     frame.grid_columnconfigure(0, weight=1)
     frame.grid_columnconfigure(1, weight=1)
 
-    tk.Radiobutton(root, text="Existing Author", variable=authorchoice, value="existing", bg="white", command=update_author_selection).place(x=350, y=220)
+    tk.Radiobutton(root, text="Existing Author", variable=authorchoice, value="existing", bg="white", command=update_author_selection, fg="black").place(x=350, y=220)
 
-    tk.Radiobutton(root, text="New Author", variable=authorchoice, value="new", bg="white", command=update_author_selection).place(x=480, y=220)
+    tk.Radiobutton(root, text="New Author", variable=authorchoice, value="new", bg="white", command=update_author_selection, fg="black").place(x=480, y=220)
 
     author_dropdown = ttk.Combobox(root, width=27, state="normal")
     author_dropdown.place(x=370, y=250)

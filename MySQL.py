@@ -101,10 +101,7 @@ def RegisterMySQL(conn, email, FirstName, LastName, Passwort):
     (count,) = mycursor.fetchone()
 
     if count == 0:
-        mycursor.execute(
-            "INSERT INTO User (FirstName, LastName, Email, Permission, Passwort) VALUES (%s, %s, %s, %s, %s)",
-            (FirstName, LastName, email, 'User', Passwort)
-        )
+        mycursor.execute("INSERT INTO User (FirstName, LastName, Email, Permission, Passwort) VALUES (%s, %s, %s, %s, %s)", (FirstName, LastName, email, 'User', Passwort))
         conn.commit()
         tkinter.messagebox.showinfo(title="Create", message="Your account has been successfully created")
     else:

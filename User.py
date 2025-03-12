@@ -28,15 +28,14 @@ def display_users(root, conn):
     canvas = tk.Canvas(root, width=900, height=50, bg="white")
     canvas.grid(row=0, column=0, columnspan=2, sticky='ew')
 
-    back = tk.Label(root, text="Back", font=("Helvetica", 16), bg="white", height=1)
+    back = tk.Label(root, text="Back", font=("Helvetica", 16), bg="white", height=1, fg="black")
     back.place(x=20, y=10)
     back.bind("<Button-1>", lambda event: BookDetails.display_books(root, conn))
 
     search_entry = Entry(root, font=("Helvetica", 14))
     search_entry.grid(row=1, column=0, padx=7, pady=10)
 
-    search_button = Button(root, text="Search", font=("Helvetica", 14),
-                           command=lambda: search_users(root, conn, search_entry.get()))
+    search_button = Button(root, text="Search", font=("Helvetica", 14), command=lambda: search_users(root, conn, search_entry.get()))
     search_button.grid(row=1, column=1)
 
     container = Frame(root, bg="white")
@@ -46,7 +45,7 @@ def display_users(root, conn):
     main_frame.pack(padx=0, pady=0, expand=True, fill='both')
 
     if not users:
-        no_data_label = Label(main_frame, text="No users found.", font=("Helvetica", 16), bg="white")
+        no_data_label = Label(main_frame, text="No users found.", font=("Helvetica", 16), bg="white", fg="black")
         no_data_label.pack(padx=0, pady=0)
     else:
         row = 0
@@ -54,7 +53,7 @@ def display_users(root, conn):
             frame = Frame(main_frame, borderwidth=1, relief="solid", pady=5, padx=5, bg="white")
             frame.grid(row=row, column=0, padx=0, pady=0, sticky='ew')
 
-            name_label = Label(frame, text=f"{user['FirstName']} {user['LastName']}", font=("Helvetica", 16), bg="white")
+            name_label = Label(frame, text=f"{user['FirstName']} {user['LastName']}", font=("Helvetica", 16), bg="white", fg="black")
             name_label.pack(side="left", padx=5, pady=5)
 
             details_button = Button(frame, text=">", font=("Helvetica", 16), command=lambda: display_user_overview(root, conn, user['UserID']))
@@ -81,15 +80,15 @@ def display_user_overview(root, conn, user_id):
     header_frame = Frame(root, bg="white")
     header_frame.grid(row=0, column=0, columnspan=3, sticky="ew")
 
-    Delete = tk.Label(root, text="Delet User", font=("Helvetica", 16), bg="white", fg="#b30000")
+    Delete = tk.Label(root, text="Delet User", font=("Helvetica", 16), bg="white", fg="red")
     Delete.grid(row=0, column=1, sticky='e', padx=20)
     Delete.bind("<Button-1>", lambda event: MySQL.delete_user(root, conn, user['UserID']))
 
-    back = tk.Label(header_frame, text="Back", font=("Helvetica", 16), bg="white", cursor="hand2")
+    back = tk.Label(header_frame, text="Back", font=("Helvetica", 16), bg="white", fg="black", cursor="hand2")
     back.grid(row=0, column=0, sticky='w', padx=10, pady=10)
     back.bind("<Button-1>", lambda event: BookDetails.display_books(root, conn))
 
-    title_label = Label(header_frame, text="User Overview", font=("Helvetica", 18, "bold"), bg="white")
+    title_label = Label(header_frame, text="User Overview", font=("Helvetica", 18, "bold"), bg="white", fg="black")
     title_label.grid(row=0, column=1, columnspan=1, pady=10, sticky="n")
     header_frame.grid_columnconfigure(1, weight=2)
 
@@ -100,7 +99,7 @@ def display_user_overview(root, conn, user_id):
     main_frame.pack(padx=0, pady=0, expand=True, fill='both')
 
     if not user:
-        no_data_label = Label(container, text="User not found.", font=("Helvetica", 16), bg="white")
+        no_data_label = Label(container, text="User not found.", font=("Helvetica", 16), bg="white", fg="black")
         no_data_label.pack(pady=10)
     else:
 
@@ -114,6 +113,5 @@ def display_user_overview(root, conn, user_id):
         info_label.pack(pady=10, anchor="w")
 
         borrowed_books = user.get('BorrowedBooks', "No books borrowed")
-        books_label = Label(container, text=f"Borrowed Books: {borrowed_books}", font=("Helvetica", 12), fg="gray",
-                            bg="white", justify="left")
+        books_label = Label(container, text=f"Borrowed Books: {borrowed_books}", font=("Helvetica", 12), fg="gray", bg="white", justify="left")
         books_label.pack(pady=5, anchor="w")

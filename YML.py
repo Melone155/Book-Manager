@@ -18,6 +18,9 @@ def save_mysql_config(host, port, user, password, database):
 def load_mysql_config():
     config_path = "Config/MySQL.yaml"
 
+    if not os.path.exists("Config"):
+        os.makedirs("Config")
+
     if not os.path.exists(config_path):
         return None
 
