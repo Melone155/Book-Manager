@@ -10,22 +10,28 @@ import User
 def search_books(root, conn, query):
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.Name FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID WHERE Books.Title LIKE %s OR Authors.Name LIKE %s OR Books.ISBN LIKE %s", ('%' + query + '%',) * 4)
+    cursor.execute(
+        "SELECT Books.ISBN, Books.Title, Authors.Name FROM Books "
+        "JOIN Authors ON Books.AuthorID = Authors.AuthorID "
+        "WHERE Books.Title LIKE %s OR Authors.Name LIKE %s OR Books.ISBN LIKE %s",
+        (query + '%', '%' + query + '%', '%' + query + '%')  # 🔥 Titel muss mit "Spy" anfangen
+    )
 
     books = cursor.fetchall()
     cursor.close()
-    display_books(root, books, conn)
+    display_books(root, conn, books)
 
 
-def display_books(root, conn):
+def display_books(root, conn, books=None):
 
     for widget in root.winfo_children():
         widget.destroy()
 
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.Name FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID")
-    books = cursor.fetchall()
-    cursor.close()
+    if books is None:
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT Books.ISBN, Books.Title, Authors.Name FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID")
+        books = cursor.fetchall()
+        cursor.close()
 
     canvas = tk.Canvas(root, width=900, height=50, bg="#FFFFFF")
     canvas.grid(row=0, column=0, columnspan=2, sticky='ew')
@@ -66,7 +72,7 @@ def display_books(root, conn):
             title_label = Label(frame, text=book['Title'], font=("Helvetica", 16), bg="white", fg="black")
             title_label.pack(side="left", padx=5, pady=5)
 
-            details_button = Button(frame, text=">", font=("Helvetica", 16),command=lambda: book_details(root, conn, book['ISBN'], MySQL.UserID), fg="black")
+            details_button = Button(frame, text=">", font=("Helvetica", 16), command=lambda book_id=book['ISBN']: book_details(root, conn, book_id, MySQL.UserID), fg="black")
             details_button.pack(side="right", padx=5, pady=5)
 
             row += 1
