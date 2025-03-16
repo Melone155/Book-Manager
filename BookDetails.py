@@ -66,7 +66,7 @@ def display_books(root, conn):
             title_label = Label(frame, text=book['Title'], font=("Helvetica", 16), bg="white", fg="black")
             title_label.pack(side="left", padx=5, pady=5)
 
-            details_button = Button(frame, text=">", font=("Helvetica", 16),command=lambda: book_details(root, conn, book['ISBN']), fg="black")
+            details_button = Button(frame, text=">", font=("Helvetica", 16),command=lambda: book_details(root, conn, book['ISBN'], MySQL.UserID), fg="black")
             details_button.pack(side="right", padx=5, pady=5)
 
             row += 1
@@ -75,12 +75,6 @@ def display_books(root, conn):
     root.grid_rowconfigure(2, weight=1)
     main_frame.grid_columnconfigure(0, weight=1)
 
-
-import tkinter as tk
-from tkinter import messagebox
-from datetime import datetime, timedelta
-
-
 def book_details(root, conn, book_id, user_id):
     # Vorherigen Inhalt löschen
     for widget in root.winfo_children():
@@ -88,12 +82,12 @@ def book_details(root, conn, book_id, user_id):
 
     cursor = conn.cursor(dictionary=True)
 
-    # Buch-Details abrufen (inkl. Ausleihstatus)
+    # Buch-Details + Ausleihe prüfen
     cursor.execute("""
-        SELECT Books.Title, Authors.Name AS Author, Books.ReleaseDate, Borrow.ReturnDate
+        SELECT Books.Title, Authors.Name AS Author, Books.PublicationYear, Borrow.UserID AS BorrowedBy
         FROM Books 
         JOIN Authors ON Books.AuthorID = Authors.AuthorID
-        LEFT JOIN Borrow ON Books.ISBN = Borrow.ISBN AND Borrow.ReturnDate IS NULL
+        LEFT JOIN Borrow ON Books.ISBN = Borrow.ISBN
         WHERE Books.ISBN = %s
     """, (book_id,))
 
@@ -106,49 +100,68 @@ def book_details(root, conn, book_id, user_id):
 
     title = book["Title"]
     author = book["Author"]
-    release_date = book["ReleaseDate"]
-    return_date = book["ReturnDate"]
-
-    # UI erstellen
-    root.configure(bg="white")
+    release_date = book["PublicationYear"]
+    borrowed_by = book["BorrowedBy"]
 
     # Zurück-Button
-    back_button = tk.Button(root, text="Zurück", font=("Helvetica", 14),
-                            command=lambda: display_books(root, conn, user_id))
+    back_button = tk.Button(root, text="Zurück", font=("Helvetica", 14), command=lambda: display_books(root, conn))
     back_button.place(x=20, y=20)
 
-    # Buchinformationen
+    # Buchinformationen anzeigen
     tk.Label(root, text=title, font=("Helvetica", 20, "bold"), bg="white").pack(pady=20)
     tk.Label(root, text=f"Autor: {author}", font=("Helvetica", 16), bg="white").pack(pady=5)
     tk.Label(root, text=f"Erscheinungsdatum: {release_date}", font=("Helvetica", 16), bg="white").pack(pady=5)
 
-    # Ausleihen-Button
-    loan_button = tk.Button(root, text="Buch ausleihen", font=("Helvetica", 16),
-                            command=lambda: borrow_book(root, conn, book_id, user_id))
-    loan_button.pack(side="bottom", padx=20, pady=20, anchor="se")
+    # Buttons-Container
+    button_frame = tk.Frame(root, bg="white")
+    button_frame.pack(pady=20)
 
-    if return_date:
-        return_date_formatted = datetime.strptime(str(return_date), "%Y-%m-%d").strftime('%d.%m.%Y')
-        tk.Label(root, text=f"Bereits ausgeliehen! Rückgabe am: {return_date_formatted}", font=("Helvetica", 14),
-                 fg="red", bg="white").pack(pady=10)
-        loan_button.config(state="disabled")
+    if borrowed_by:
+        tk.Label(root, text="Das Buch ist derzeit ausgeliehen!", font=("Helvetica", 14), fg="red", bg="white").pack(pady=10)
+
+        # Wenn der eingeloggte User das Buch hat, zeige "Zurückgeben"-Button
+        if borrowed_by == user_id:
+            return_button = tk.Button(button_frame, text="Buch zurückgeben", font=("Helvetica", 16),
+                                      command=lambda: return_book(root, conn, book_id, user_id))
+            return_button.pack(side="left", padx=10)
+        else:
+            loan_button = tk.Button(button_frame, text="Buch ausleihen", font=("Helvetica", 16), state="disabled")
+            loan_button.pack(side="left", padx=10)
+    else:
+        # Falls das Buch nicht ausgeliehen ist, zeige den "Ausleihen"-Button
+        loan_button = tk.Button(button_frame, text="Buch ausleihen", font=("Helvetica", 16),
+                                command=lambda: borrow_book(root, conn, book_id, user_id))
+        loan_button.pack(side="left", padx=10)
 
 
 def borrow_book(root, conn, book_id, user_id):
     cursor = conn.cursor()
 
-    # Prüfen, ob das Buch bereits ausgeliehen wurde (noch nicht zurückgegeben)
-    cursor.execute("SELECT ReturnDate FROM Borrow WHERE ISBN = %s AND ReturnDate IS NULL", (book_id,))
-    loan = cursor.fetchone()
+    # Prüfen, ob das Buch bereits ausgeliehen wurde
+    cursor.execute("SELECT * FROM Borrow WHERE ISBN = %s", (book_id,))
+    existing_borrow = cursor.fetchone()
 
-    if loan:
-        messagebox.showwarning("Nicht möglich", "Das Buch ist bereits ausgeliehen.")
+    if existing_borrow:
+        messagebox.showerror("Fehler", "Das Buch ist bereits ausgeliehen.")
     else:
-        return_date = (datetime.today() + timedelta(days=30)).strftime('%Y-%m-%d')
-        cursor.execute("INSERT INTO Borrow (UserID, ISBN, ReturnDate) VALUES (%s, %s, %s)",
-                       (user_id, book_id, return_date))
+        # Buch ausleihen (Eintrag in Borrow-Tabelle)
+        cursor.execute("INSERT INTO Borrow (UserID, ISBN) VALUES (%s, %s)", (user_id, book_id))
         conn.commit()
-        messagebox.showinfo("Erfolgreich", "Das Buch wurde ausgeliehen!")
-        book_details(root, conn, book_id, user_id)  # Ansicht aktualisieren
+        messagebox.showinfo("Erfolg", "Buch erfolgreich ausgeliehen!")
 
     cursor.close()
+    book_details(root, conn, book_id, user_id)  # Aktualisierte Ansicht
+
+    cursor.close()
+
+def return_book(root, conn, book_id, user_id):
+    cursor = conn.cursor()
+
+    # Eintrag aus Borrow-Tabelle entfernen
+    cursor.execute("DELETE FROM Borrow WHERE ISBN = %s AND UserID = %s", (book_id, user_id))
+    conn.commit()
+    cursor.close()
+
+    messagebox.showinfo("Erfolg", "Das Buch wurde zurückgegeben!")
+    book_details(root, conn, book_id, user_id)  # Aktualisierte Ansicht
+

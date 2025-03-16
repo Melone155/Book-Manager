@@ -1,6 +1,5 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-import customtkinter
 import customtkinter as ctk
 
 import Login
@@ -52,7 +51,7 @@ def RegisterScreen(root):
     register_button = ctk.CTkButton(
         master=root,
         text="Register",
-        command=lambda: (MySQL.RegisterMySQL(MySQL.conn, Emailentry.get(), Firnameentry.get(), Lastnameentry.get(), passwordentry.get()), Login.LoginScreen(root)),
+        command=lambda: (MySQL.RegisterMySQL(MySQL.conn, Emailentry.get(), Firnameentry.get(), Lastnameentry.get(), passwordentry.get())),
         font=main_font,
         text_color="black",
         height=40,

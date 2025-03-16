@@ -145,4 +145,3 @@ def Finishsetup(root):
             widget.destroy()
         python = sys.executable
         os.execl(python, python, *sys.argv)
-        Login.LoginScreen(root)
