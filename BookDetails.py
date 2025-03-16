@@ -1,6 +1,5 @@
 import tkinter as tk
-from datetime import datetime, timedelta
-from tkinter import Frame, Label, Entry, Button, messagebox
+from tkinter import Frame, Label, Button, messagebox
 
 import AddBook
 import MySQL
@@ -10,12 +9,7 @@ import User
 def search_books(root, conn, query):
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute(
-        "SELECT Books.ISBN, Books.Title, Authors.Name FROM Books "
-        "JOIN Authors ON Books.AuthorID = Authors.AuthorID "
-        "WHERE Books.Title LIKE %s OR Authors.Name LIKE %s OR Books.ISBN LIKE %s",
-        (query + '%', '%' + query + '%', '%' + query + '%')  # 🔥 Titel muss mit "Spy" anfangen
-    )
+    cursor.execute("SELECT Books.ISBN, Books.Title, Authors.Name FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID  WHERE Books.Title LIKE %s OR Authors.Name LIKE %s OR Books.ISBN LIKE %s", (query + '%', '%' + query + '%', '%' + query + '%'))
 
     books = cursor.fetchall()
     cursor.close()
@@ -23,7 +17,6 @@ def search_books(root, conn, query):
 
 
 def display_books(root, conn, books=None):
-
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -50,9 +43,9 @@ def display_books(root, conn, books=None):
     searchentry = tk.Entry(root, fg="black")
     searchentry.grid(row=1, column=0, padx=7, pady=10)
 
-    search_button = Button(root, text="Search", font=("Helvetica", 14),bg="white", command=lambda: search_books(root, conn, searchentry.get()))
+    search_button = Button(root, text="Search", font=("Helvetica", 14), bg="white",
+                           command=lambda: search_books(root, conn, searchentry.get()))
     search_button.grid(row=1, column=1)
-
 
     container = Frame(root, bg="white")
     container.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="nsew")
@@ -81,27 +74,21 @@ def display_books(root, conn, books=None):
     root.grid_rowconfigure(2, weight=1)
     main_frame.grid_columnconfigure(0, weight=1)
 
+
 def book_details(root, conn, book_id, user_id):
-    # Vorherigen Inhalt löschen
+
     for widget in root.winfo_children():
         widget.destroy()
 
     cursor = conn.cursor(dictionary=True)
 
-    # Buch-Details + Ausleihe prüfen
-    cursor.execute("""
-        SELECT Books.Title, Authors.Name AS Author, Books.PublicationYear, Borrow.UserID AS BorrowedBy
-        FROM Books 
-        JOIN Authors ON Books.AuthorID = Authors.AuthorID
-        LEFT JOIN Borrow ON Books.ISBN = Borrow.ISBN
-        WHERE Books.ISBN = %s
-    """, (book_id,))
+    cursor.execute("SELECT Books.Title, Authors.Name AS Author, Books.PublicationYear, Borrow.UserID AS BorrowedBy FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID JOIN Borrow ON Books.ISBN = Borrow.ISBN WHERE Books.ISBN = %s", (book_id,))
 
     book = cursor.fetchone()
     cursor.close()
 
     if not book:
-        messagebox.showerror("Fehler", "Buch nicht gefunden.")
+        messagebox.showerror("Error", "The book you selected could not be found.")
         return
 
     title = book["Title"]
@@ -109,65 +96,55 @@ def book_details(root, conn, book_id, user_id):
     release_date = book["PublicationYear"]
     borrowed_by = book["BorrowedBy"]
 
-    # Zurück-Button
-    back_button = tk.Button(root, text="Zurück", font=("Helvetica", 14), command=lambda: display_books(root, conn))
+    back_button = tk.Button(root, text="Back", font=("Helvetica", 14), command=lambda: display_books(root, conn))
     back_button.place(x=20, y=20)
 
-    # Buchinformationen anzeigen
     tk.Label(root, text=title, font=("Helvetica", 20, "bold"), bg="white").pack(pady=20)
     tk.Label(root, text=f"Autor: {author}", font=("Helvetica", 16), bg="white").pack(pady=5)
-    tk.Label(root, text=f"Erscheinungsdatum: {release_date}", font=("Helvetica", 16), bg="white").pack(pady=5)
+    tk.Label(root, text=f"Publication date: {release_date}", font=("Helvetica", 16), bg="white").pack(pady=5)
 
-    # Buttons-Container
     button_frame = tk.Frame(root, bg="white")
     button_frame.pack(pady=20)
 
     if borrowed_by:
-        tk.Label(root, text="Das Buch ist derzeit ausgeliehen!", font=("Helvetica", 14), fg="red", bg="white").pack(pady=10)
+        tk.Label(root, text="The book is currently out on loan!", font=("Helvetica", 14), fg="red", bg="white").pack(
+            pady=10)
 
-        # Wenn der eingeloggte User das Buch hat, zeige "Zurückgeben"-Button
         if borrowed_by == user_id:
-            return_button = tk.Button(button_frame, text="Buch zurückgeben", font=("Helvetica", 16),
+            return_button = tk.Button(button_frame, text="Return book", font=("Helvetica", 16),
                                       command=lambda: return_book(root, conn, book_id, user_id))
             return_button.pack(side="left", padx=10)
         else:
-            loan_button = tk.Button(button_frame, text="Buch ausleihen", font=("Helvetica", 16), state="disabled")
+            loan_button = tk.Button(button_frame, text="Borrow a book", font=("Helvetica", 16), state="disabled")
             loan_button.pack(side="left", padx=10)
-    else:
-        # Falls das Buch nicht ausgeliehen ist, zeige den "Ausleihen"-Button
-        loan_button = tk.Button(button_frame, text="Buch ausleihen", font=("Helvetica", 16),
-                                command=lambda: borrow_book(root, conn, book_id, user_id))
-        loan_button.pack(side="left", padx=10)
 
 
 def borrow_book(root, conn, book_id, user_id):
     cursor = conn.cursor()
 
-    # Prüfen, ob das Buch bereits ausgeliehen wurde
     cursor.execute("SELECT * FROM Borrow WHERE ISBN = %s", (book_id,))
     existing_borrow = cursor.fetchone()
 
     if existing_borrow:
-        messagebox.showerror("Fehler", "Das Buch ist bereits ausgeliehen.")
+        messagebox.showerror("Error", "The book is already on loan.")
     else:
-        # Buch ausleihen (Eintrag in Borrow-Tabelle)
+
         cursor.execute("INSERT INTO Borrow (UserID, ISBN) VALUES (%s, %s)", (user_id, book_id))
         conn.commit()
-        messagebox.showinfo("Erfolg", "Buch erfolgreich ausgeliehen!")
+        messagebox.showinfo("Successful", "Book successfully borrowed!")
 
     cursor.close()
-    book_details(root, conn, book_id, user_id)  # Aktualisierte Ansicht
+    book_details(root, conn, book_id, user_id)
 
     cursor.close()
+
 
 def return_book(root, conn, book_id, user_id):
     cursor = conn.cursor()
 
-    # Eintrag aus Borrow-Tabelle entfernen
     cursor.execute("DELETE FROM Borrow WHERE ISBN = %s AND UserID = %s", (book_id, user_id))
     conn.commit()
     cursor.close()
 
-    messagebox.showinfo("Erfolg", "Das Buch wurde zurückgegeben!")
-    book_details(root, conn, book_id, user_id)  # Aktualisierte Ansicht
-
+    messagebox.showinfo("Successful", "The book has been returned!")
+    book_details(root, conn, book_id, user_id)
