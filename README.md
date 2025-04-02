@@ -4,7 +4,7 @@
 
 This is a book management programme in which you can see which books are available and who has currently borrowed them
 
-!CAUTION]
+[!CAUTION]
 In this programme users can be created. This data is stored unencrypted and is therefore not suitable for general use in this form.
 
 ## What does the programme need
