@@ -1,0 +1,6 @@
+PyYAML
+customtkinter
+darkdetect
+packaging
+pillow
+mysql-connector-python

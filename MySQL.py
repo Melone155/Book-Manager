@@ -1,4 +1,3 @@
-import os
 import sys
 from tkinter import messagebox
 import mysql.connector
@@ -81,7 +80,7 @@ def ConnectionMySQL():
         )
         return conn
     except mysql.connector.Error as err:#
-        messagebox.showerror(title="Error", message=f"Connection failed: {err}")
+        tkinter.messagebox.showerror(title="Error", message=f"Connection failed: {err}")
         sys.exit()
 
 
@@ -104,25 +103,19 @@ def RegisterMySQL(conn, email, FirstName, LastName, Passwort):
     if count == 0:
         mycursor.execute("INSERT INTO User (FirstName, LastName, Email, Permission, Passwort) VALUES (%s, %s, %s, %s, %s)", (FirstName, LastName, email, 'User', Passwort))
         conn.commit()
-
-        messagebox.showinfo(title="Create", message="Your account has been successfully created")
-
-        python = sys.executable
-        os.execl(python, python, *sys.argv)
+        tkinter.messagebox.showinfo(title="Create", message="Your account has been successfully created")
     else:
-        messagebox.showerror(title="Error", message="The e-mail address is already in use.")
+        tkinter.messagebox.showerror(title="Error", message="The e-mail address is already in use.")
 
     conn.close()
 
 permissions = ""
-UserID = ""
 
 def Login(conn, email, password, root):
     global permissions
-    global UserID
 
     if not conn:
-        messagebox.showerror(title="Connection Error", message="No connection to the database could be established.")
+        tkinter.messagebox.showerror(title="Connection Error", message="No connection to the database could be established.")
         return
 
     mycursor = conn.cursor(dictionary=True)  #'dictionary=True' Makes sure that the return is structured as an array and all information is a string
@@ -131,11 +124,10 @@ def Login(conn, email, password, root):
 
     if user:
         permissions = user['Permission']
-        UserID = user['UserID']
 
         BookDetails.display_books(root, conn)
     else:
-        messagebox.showerror(title="Login Failed", message="Invalid email or password.")
+        tkinter.messagebox.showerror(title="Login Failed", message="Invalid email or password.")
 
 
 def delete_user(root, conn, user_id):
