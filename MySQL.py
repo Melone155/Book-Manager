@@ -1,6 +1,7 @@
 import sys
 from tkinter import messagebox
 import mysql.connector
+import tkinter
 
 import User
 import YML
@@ -21,10 +22,6 @@ def test_mysql_connection(host, port, user, password, database):
         tkinter.messagebox.showinfo(title="Connect", message="Connection to database successful and Tables was Create")
     except mysql.connector.Error as err:
         tkinter.messagebox.showerror(title="Error", message=f"Connection failed: {err}")
-
-def CheckTabel(conn):
-    mycursor = conn.cursor()
-    mycursor.execute("SHOW TABLES LIKE 'Books'")
 
 
 def CreateTable(conn):
@@ -87,8 +84,6 @@ def ConnectionMySQL():
 conn = ConnectionMySQL()
 
 
-import tkinter
-
 def RegisterMySQL(conn, email, FirstName, LastName, Passwort):
     # Prüfen, ob die Verbindung existiert
     if conn is None:
@@ -110,9 +105,11 @@ def RegisterMySQL(conn, email, FirstName, LastName, Passwort):
     conn.close()
 
 permissions = ""
+UserID = ""
 
 def Login(conn, email, password, root):
     global permissions
+    global UserID
 
     if not conn:
         tkinter.messagebox.showerror(title="Connection Error", message="No connection to the database could be established.")
@@ -124,6 +121,7 @@ def Login(conn, email, password, root):
 
     if user:
         permissions = user['Permission']
+        UserID = user['UserID']
 
         BookDetails.display_books(root, conn)
     else:

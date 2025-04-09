@@ -82,14 +82,17 @@ def book_details(root, conn, book_id, user_id):
 
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT Books.Title, Authors.Name AS Author, Books.PublicationYear, Borrow.UserID AS BorrowedBy FROM Books JOIN Authors ON Books.AuthorID = Authors.AuthorID JOIN Borrow ON Books.ISBN = Borrow.ISBN WHERE Books.ISBN = %s", (book_id,))
+    cursor.execute("""
+        SELECT Books.Title, Authors.Name AS Author, Books.PublicationYear, Borrow.UserID AS BorrowedBy
+        FROM Books
+        JOIN Authors ON Books.AuthorID = Authors.AuthorID
+        LEFT JOIN Borrow ON Books.ISBN = Borrow.ISBN
+        WHERE Books.ISBN = %s
+    """, (book_id,))
 
     book = cursor.fetchone()
     cursor.close()
 
-    if not book:
-        messagebox.showerror("Error", "The book you selected could not be found.")
-        return
 
     title = book["Title"]
     author = book["Author"]
@@ -99,9 +102,9 @@ def book_details(root, conn, book_id, user_id):
     back_button = tk.Button(root, text="Back", font=("Helvetica", 14), command=lambda: display_books(root, conn))
     back_button.place(x=20, y=20)
 
-    tk.Label(root, text=title, font=("Helvetica", 20, "bold"), bg="white").pack(pady=20)
-    tk.Label(root, text=f"Autor: {author}", font=("Helvetica", 16), bg="white").pack(pady=5)
-    tk.Label(root, text=f"Publication date: {release_date}", font=("Helvetica", 16), bg="white").pack(pady=5)
+    tk.Label(root, text=title, font=("Helvetica", 20, "bold"), bg="white", fg="black").pack(pady=20)
+    tk.Label(root, text=f"Autor: {author}", font=("Helvetica", 16), bg="white", fg="black").pack(pady=5)
+    tk.Label(root, text=f"Publication date: {release_date}", font=("Helvetica", 16), bg="white", fg="black").pack(pady=5)
 
     button_frame = tk.Frame(root, bg="white")
     button_frame.pack(pady=20)
@@ -111,12 +114,13 @@ def book_details(root, conn, book_id, user_id):
             pady=10)
 
         if borrowed_by == user_id:
-            return_button = tk.Button(button_frame, text="Return book", font=("Helvetica", 16),
-                                      command=lambda: return_book(root, conn, book_id, user_id))
+            return_button = tk.Button(button_frame, text="Return book", font=("Helvetica", 16), fg="black", command=lambda: return_book(root, conn, book_id, user_id))
             return_button.pack(side="left", padx=10)
         else:
-            loan_button = tk.Button(button_frame, text="Borrow a book", font=("Helvetica", 16), state="disabled")
-            loan_button.pack(side="left", padx=10)
+            tk.Label(button_frame, text="Borrowing not available.", font=("Helvetica", 14), fg="gray", bg="white").pack(side="left", padx=10)
+    else:
+        loan_button = tk.Button(button_frame,text="Borrow book",font=("Helvetica", 16),fg="black", command=lambda: borrow_book(root, conn, book_id, user_id))
+        loan_button.pack(side="left", padx=10)
 
 
 def borrow_book(root, conn, book_id, user_id):
