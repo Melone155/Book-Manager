@@ -56,7 +56,7 @@ def display_users(root, conn):
             name_label = Label(frame, text=f"{user['FirstName']} {user['LastName']}", font=("Helvetica", 16), bg="white", fg="black")
             name_label.pack(side="left", padx=5, pady=5)
 
-            details_button = Button(frame, text=">", font=("Helvetica", 16), command=lambda: display_user_overview(root, conn, user['UserID']))
+            details_button = Button(frame, text=">", font=("Helvetica", 16), command=lambda user_id=user['UserID']: display_user_overview(root, conn, user_id))
             details_button.pack(side="right", padx=5, pady=5)
 
             row += 1
